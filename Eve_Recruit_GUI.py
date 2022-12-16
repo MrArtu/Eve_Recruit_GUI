@@ -53,7 +53,13 @@ class MainDatabase:
 
         self.session.execute(sql_create_table_mail)
         self.session.commit()
-
+        
+        sql_create_first_mail = 'INSERT OR IGNORE INTO mail(id,subject,body)'\
+                                'VALUES (0,\'This is first message\', \'Hello! i`m test message\')'
+                                
+        self.session.execute(sql_create_first_mail)
+        self.session.commit()
+        
     def bulk_check(self, all_users):
         users_to_add = []
         # В одном выражении не может быть больше 500 select/union, поэтому обрабатываем порциями.
