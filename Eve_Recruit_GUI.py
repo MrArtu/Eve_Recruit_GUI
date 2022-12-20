@@ -55,7 +55,8 @@ class MainDatabase:
         self.session.commit()
         
         sql_create_first_mail = 'INSERT OR IGNORE INTO mail(id,subject,body)'\
-                                'VALUES (0,\'This is first message\', \'Hello! i`m test message\')'
+                                'VALUES (1, \'This is first message\', \'Hello! i`m test message\'), '\
+                                        '(0, \'0\', \'0\')'
                                 
         self.session.execute(sql_create_first_mail)
         self.session.commit()
@@ -83,8 +84,8 @@ class MainDatabase:
         self.session.commit()
 
     def add_mail(self, subject, body):
-        SQL_select = 'INSERT or REPLACE INTO mail (id, subject, body) VALUES(1, ?, ?)'
-        rez = self.session.execute(SQL_select, (subject, body))
+        SQL_select = 'INSERT or REPLACE INTO mail (id, subject, body) VALUES(?, ?, ?)'
+        rez = self.session.execute(SQL_select, (config['selected_mail_variant'], subject, body))
         self.session.commit()
 
     def get_mail_variants(self):
@@ -540,16 +541,21 @@ def add_mail_one_nickname_window():
 
 
 def add_mail_main_window():
+    choised = IntVar()
+    choised.set(config['selected_mail_variant'])
+    list_of_mail_variants = db.get_mail_variants()
     subject, body = db.get_mail_variant(config['selected_mail_variant'])
     change_mail = Toplevel(window)
     change_mail.grab_set()
+    choise = OptionMenu(change_mail, choised, *range(1, len(list_of_mail_variants)), command=lambda x: show_mail(choised, change_mail, mail_subject, mail_body_text))
+    choise.grid(column=0, row=0)
     lbl = Label(change_mail, text='Subject:', anchor='w', justify=LEFT)
-    lbl.grid(column=0, row=0, padx=10, pady=5)
+    lbl.grid(column=1, row=0, padx=10, pady=5)
     mail_subject = StringVar(value=subject)
     mail_subject_entry = Entry(change_mail, textvariable=mail_subject, width=76)
-    mail_subject_entry.grid(column=1, row=0, padx=10, columnspan=2)
+    mail_subject_entry.grid(column=2, row=0, padx=10, columnspan=2)
     mail_body_text = Text(change_mail, width=80)
-    mail_body_text.grid(column=0, row=1, padx=10, columnspan=3, ipady=60)
+    mail_body_text.grid(column=1, row=1, padx=10, columnspan=3, ipady=60)
     mail_body_text.insert('end', body)
     add_subject_btn = Button(change_mail, text='OK', width=10,
                              command=lambda: add_mail(mail_subject_entry, change_mail, mail_body_text))
@@ -558,6 +564,13 @@ def add_mail_main_window():
                                 command=lambda: change_mail.destroy())
     cancel_subject_btn.grid(column=2, row=4, padx=10, pady=5)
 
+def show_mail(choised, change_mail, mail_subject, mail_body_text):
+    select_mail(choised.get())
+    subject, body = db.get_mail_variant(config['selected_mail_variant'])
+    mail_subject.set(subject)
+    mail_body_text.delete('1.0', 'end')
+    mail_body_text.insert('end', body)
+   
 
 def add_mail(mail_subject_entry, change_mail, mail_body_text):
     mail_subject = mail_subject_entry.get()
@@ -573,20 +586,18 @@ def add_mail(mail_subject_entry, change_mail, mail_body_text):
         elif check_mail_url[one_word].startswith('\nwww.'):
             check_mail_url[one_word] = '\n<a href="http://' + check_mail_url[one_word].lstrip() + f'">{check_mail_url[one_word].lstrip()}</a>'
     mail_body = ' '.join(check_mail_url)
-    add_log(f'Письмо с темой: "{mail_subject}" - добавлено')
-    add_log('Текст добавленного письма:')
-    add_log(f'{mail_body}')
+    add_log(f'Письмо с темой: "{mail_subject}" - сохранено')
+    add_log(f'Текущий варинт письма: "{config["selected_mail_variant"]}"')
     db.add_mail(mail_subject, mail_body)
+    print_stats(db)
     return change_mail.destroy()
 
 
-def select_mail():
+def select_mail(selected):
     list_of_mail_variants = db.get_mail_variants()
-    print('На данный момент в базе сохранены следующие варианты писем:')
-    print(*list_of_mail_variants, sep='\n')
     print('--------------------------------------------')
+    config['selected_mail_variant'] = selected
     print(f'Текущий выбранный вариант письма: {config["selected_mail_variant"]}')
-    config['selected_mail_variant'] = input('Выберите вариант письма для последующих отправок: ')
     put_config()
 
 
