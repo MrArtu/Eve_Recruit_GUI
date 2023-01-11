@@ -13,6 +13,8 @@ import urllib.parse
 import datetime
 import os
 import webbrowser
+import pip
+pip.main(['install','python-jose','requests','pyperclip'])
 
 from http.server import BaseHTTPRequestHandler
 from http.server import ThreadingHTTPServer
@@ -656,6 +658,8 @@ def add_log(log_message):
 
 
 if __name__ == '__main__':
+    window = Tk()
+    window.title('Автоспамер :)')
     # Основной раздел
     # config = {}
     auth_code = ''
@@ -690,8 +694,7 @@ if __name__ == '__main__':
     # list_yes = ["yes", "y", "YES", "Y", "+", "Д", "ДА", "д", "да"]
     # list_no = ["no", "n", "NO", "N", "-", "Н", "НЕТ", "н", "нет"]
 
-    window = Tk()
-    window.title('Автоспамер :)')
+
     text_box = Text(window, height=10, width=70)
     text_box.grid(row=5, column=3, rowspan=6, padx=10)
     log_box = Text(window, height=10, width=70)
