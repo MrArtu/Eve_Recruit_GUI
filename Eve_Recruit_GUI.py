@@ -2,6 +2,8 @@
 from tkinter import *
 from tkinter import messagebox as mb
 from tkinter import simpledialog as sdialog
+import pip
+pip.main(['install','python-jose','requests','pyperclip'])
 import sqlite3
 import pyperclip
 import time
@@ -13,8 +15,6 @@ import urllib.parse
 import datetime
 import os
 import webbrowser
-import pip
-pip.main(['install','python-jose','requests','pyperclip'])
 
 from http.server import BaseHTTPRequestHandler
 from http.server import ThreadingHTTPServer
