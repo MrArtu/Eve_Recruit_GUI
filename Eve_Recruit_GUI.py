@@ -546,10 +546,13 @@ def add_mail_main_window():
     choised = IntVar()
     choised.set(config['selected_mail_variant'])
     list_of_mail_variants = db.get_mail_variants()
+    variants_list=[]
+    for variant in range(1, len(list_of_mail_variants)):
+        variants_list.append(list_of_mail_variants[variant].get('id'))
     subject, body = db.get_mail_variant(config['selected_mail_variant'])
     change_mail = Toplevel(window)
     change_mail.grab_set()
-    choise = OptionMenu(change_mail, choised, *range(1, len(list_of_mail_variants)), command=lambda x: show_mail(choised, change_mail, mail_subject, mail_body_text))
+    choise = OptionMenu(change_mail, choised, *variants_list, command=lambda x: show_mail(choised, change_mail, mail_subject, mail_body_text))
     choise.grid(column=0, row=0)
     lbl = Label(change_mail, text='Subject:', anchor='w', justify=LEFT)
     lbl.grid(column=1, row=0, padx=10, pady=5)
